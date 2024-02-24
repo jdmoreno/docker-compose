@@ -1,0 +1,8 @@
+---
+version: '2'
+
+services:
+
+  kafkacat:
+    container_name: kafkacat
+    image: confluentinc/cp-kafkacat:latest

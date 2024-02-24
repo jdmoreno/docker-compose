@@ -1,0 +1,17 @@
+docker run --tty ^
+           --network docker-compose_default ^
+           confluentinc/cp-kafkacat ^
+           kafkacat -b kafka:9192 
+		   
+		   
+docker run --tty ^
+           confluentinc/cp-kafkacat ^
+           kafkacat -b kafka:9192 -P -t t1
+		   
+		   
+docker run -it --rm \
+  --network kafka-docker_default \
+  --name producer \
+  confluentinc/cp-kafkacat \
+  kafkacat \
+  -b kafka-docker_kafka_1:9092 -P -t t1

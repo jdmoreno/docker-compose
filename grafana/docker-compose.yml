@@ -1,0 +1,16 @@
+version: "3.5"
+
+services:
+  grafana: 
+    container_name: grafana
+    image: "docker.io/bitnami/grafana:latest"
+    restart: unless-stopped
+    ports: 
+      - 3000:3000
+    environment: 
+      GF_SECURITY_ADMIN_PASSWORD: password
+    volumes: 
+      - grafana_data:/opt/bitnami/grafana/data
+volumes:
+  grafana_data:
+    driver: local

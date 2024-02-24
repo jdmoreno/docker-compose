@@ -1,0 +1,66 @@
+--- 
+version: "2"
+
+networks: 
+  postgres-network: ~
+services: 
+  grafana: 
+    environment: 
+      GF_RENDERING_CALLBACK_URL: "http://grafana:3000/"
+      GF_RENDERING_SERVER_URL: "http://grafana-image-renderer:8080/render"
+      GF_SECURITY_ADMIN_PASSWORD: password
+    image: "docker.io/bitnami/grafana:latest"
+    networks: 
+      - postgres-network
+    ports: 
+      - "3000:3000"
+    restart: unless-stopped
+    volumes: 
+      - "grafana_data:/opt/bitnami/grafana/data"
+  grafana-image-renderer: 
+    environment: 
+      ENABLE_METRICS: "true"
+      HTTP_HOST: "0.0.0.0"
+      HTTP_PORT: "8080"
+    image: "docker.io/bitnami/grafana-image-renderer:latest"
+    networks: 
+      - postgres-network
+    ports: 
+      - "8080:8080"
+    restart: unless-stopped
+  postgres-exporter: 
+    image: "docker.io/bitnami/postgres-exporter:latest"
+    restart: unless-stopped
+    environment: 
+      DATA_SOURCE_NAME: "postgresql://postgres@:5432/postgres?host=/var/run/postgresql"
+      DATA_SOURCE_USER:  
+      DATA_SOURCE_PASS: 
+    networks: 
+      - postgres-network
+  postgresql: 
+    image: "docker.io/bitnami/postgresql:latest"
+    restart: unless-stopped
+    ports: 
+      - "55432:5432"
+    environment: 
+      - ALLOW_EMPTY_PASSWORD: yes
+      - POSTGRESQL_POSTGRES_PASSWORD : password
+      - POSTGRESQL_DATABASE: jooq
+      - POSTGRESQL_USERNAME: jooq
+      - POSTGRESQL_PASSWORD: password
+    networks: 
+      - postgres-network
+    volumes: 
+      - "postgresql_data:/bitnami/postgresql"
+  prometheus: 
+    image: "docker.io/bitnami/prometheus:latest"
+    networks: 
+      - postgres-network
+    ports: 
+      - "9090:9090"
+    restart: unless-stopped
+volumes: 
+  grafana_data: 
+    driver: local
+  postgresql_data: 
+    driver: local

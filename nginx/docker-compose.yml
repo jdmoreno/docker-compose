@@ -1,0 +1,20 @@
+version: '3.3'
+services:
+    httpd:
+        image: nginx:latest
+        container_name: my-ngix-app
+        environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=Etc/UTC
+        ports:
+            - 8080:80
+        volumes:        
+            - nginx_config:/etc/nginx/
+            #- nginx_data:/etc/nginx/
+        restart: unless-stopped
+volumes: 
+  nginx_config: 
+    driver: local
+#  nginx_data: 
+#  driver: local

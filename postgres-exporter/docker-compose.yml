@@ -1,0 +1,59 @@
+--- 
+version: "2"
+
+services: 
+  postgresql: 
+    image: "docker.io/bitnami/postgresql:latest"
+    restart: unless-stopped
+    environment: 
+      ALLOW_EMPTY_PASSWORD: yes
+      POSTGRESQL_POSTGRES_PASSWORD : password
+      POSTGRESQL_DATABASE: jooq
+      POSTGRESQL_USERNAME: jooq
+      POSTGRESQL_PASSWORD: password
+    ports: 
+      - 55432:5432    
+    volumes: 
+      - postgresql_data:/bitnami/postgresql      
+    networks: 
+      - postgres-network
+  postgres-exporter: 
+    image: "docker.io/bitnami/postgres-exporter:latest"
+    restart: unless-stopped
+    environment: 
+      DATA_SOURCE_URI: postgresql:5432?sslmode=disable
+      DATA_SOURCE_USER: jooq
+      DATA_SOURCE_PASS: password
+    ports: 
+      - 9187:9187          
+    networks: 
+      - postgres-network
+  prometheus: 
+    image: "docker.io/bitnami/prometheus:latest"
+    restart: unless-stopped
+    ports: 
+      - 9090:9090
+    networks: 
+      - postgres-network
+    volumes: 
+      - ./prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml
+  grafana: 
+    image: "docker.io/bitnami/grafana:latest"
+    restart: unless-stopped
+    ports: 
+      - 3000:3000
+    environment: 
+      GF_SECURITY_ADMIN_PASSWORD: password
+    networks: 
+      - postgres-network
+    volumes: 
+      - grafana_data:/opt/bitnami/grafana/data
+
+volumes: 
+  postgresql_data: 
+    driver: local
+  grafana_data: 
+    driver: local
+    
+networks: 
+  postgres-network: ~
