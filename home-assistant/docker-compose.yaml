@@ -1,0 +1,78 @@
+version: '3'
+services:
+  homeassistant:
+    image: homeassistant/home-assistant:latest
+    container_name: homeassistant
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ="Europe/London"
+      - LANG=en_US.UTF-8
+    ports:
+      - "8123:8123" #optional
+    volumes:
+      - homeassistant_config:/config
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ="Europe/London"
+      - LANG=en_US.UTF-8
+    ports:
+      - "1883:1883"
+      - "9001:9001" # optional
+    volumes:
+      - mosquitto_config:/mosquitto/config"
+      - mosquitto_data:/mosquitto/data"
+      - mosquitto_log:/mosquitto/log"
+  nodered:
+    image: nodered/node-red:latest
+    container_name: nodered
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ="Europe/London"
+      - LANG=en_US.UTF-8
+    ports:
+      - "1880:1880"
+      - "20514:20514" # optional
+    volumes:
+      - nodered_data:/data
+    depends_on:
+      - homeassistant
+      - mosquitto
+  hass-configurator:
+    image: "causticlab/hass-configurator-docker:latest"
+    container_name: "hass-configurator"
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ="Europe/London"
+      - LANG=en_US.UTF-8
+    ports:
+      - "3218:3218/tcp"
+    volumes:
+      - configurator_config:/config
+      - configurator_hass_config_config:/hass-config
+volumes:
+  homeassistant_config:
+    driver: local
+  mosquitto_config:
+    driver: local
+  mosquitto_data:
+    driver: local
+  mosquitto_log:
+    driver: local
+  nodered_data:
+    driver: local
+  configurator_config:
+    driver: local
+  configurator_hass_config_config:
+    driver: local
