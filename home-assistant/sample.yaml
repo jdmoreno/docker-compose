@@ -1,0 +1,51 @@
+version: '3'
+services:
+  homeassistant:
+	container_name: homeassistant
+    image: homeassistant/home-assistant:latest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+      - LANG: en_US.UTF-8
+      - TZ: America/Los_Angeles
+    volumes:
+      - /share/Public/Config:/config
+      - /share/Music:/media:ro
+  nodered:
+    container_name: nodered
+    image: nodered/node-red
+    restart: unless-stopped
+    ports:
+      - 1880:1880
+    volumes:
+      - /opt/stacks/hass/nodered:/data
+    depends_on:
+      - homeassistant
+      - mosquitto
+    environment:
+      - TZ=<TIMEZONE>
+  mosquitto:
+    container_name: mosquitto
+    image: eclipse-mosquitto
+    restart: unless-stopped
+    ports:
+      - 1883:1883
+      - 9001:9001
+    volumes:
+      - "/opt/stacks/hass/mosquitto/config:/mosquitto/config"
+      - "/opt/stacks/hass/mosquitto/data:/mosquitto/data"
+      - "/opt/stacks/hass/mosquitto/log:/mosquitto/log"
+    environment:
+      - TZ=<TIMEZONE>
+    user: "${PUID}:${PGID}"
+  hass-configurator:
+    image: "causticlab/hass-configurator-docker:latest"
+    restart: always
+    ports:
+      - "3218:3218/tcp"
+    volumes:
+      - "/opt/stacks/hass/configurator-config:/config"
+      - "/opt/stacks/hass/hass-config:/hass-config"
