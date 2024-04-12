@@ -1,0 +1,28 @@
+---
+version: "3"
+services:
+  prometheus:
+    image: bitnami/prometheus:2.48.0
+    hostname: prometheus
+    container_name: prometheus
+    networks:
+      - kafka
+    ports:
+      - "9099:9090"
+    volumes:
+      - ./prometheus/prometheus.yaml:/opt/bitnami/prometheus/conf/prometheus.yml
+
+  grafana:
+    image: grafana/grafana:10.2.2
+    hostname: grafana
+    container_name: grafana
+    networks:
+      - kafka
+    ports:
+      - "3000:3000"    
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=password
+
+networks:
+  kafka:
+    external: true

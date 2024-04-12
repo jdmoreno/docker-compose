@@ -1,8 +1,10 @@
+---
 version: '3'
 services:
   
   kafka-1:
     image: 'bitnami/kafka:latest'
+    hostname: kafka-1
     container_name: kafka-1
     environment:
       - KAFKA_ENABLE_KRAFT=yes
@@ -15,15 +17,23 @@ services:
       - KAFKA_CFG_BROKER_ID=1
       - KAFKA_CFG_NODE_ID=1
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=LISTENER_INTERNAL://kafka-1:9092,LISTENER_EXTERNAL://192.168.1.4:9182
+      - KAFKA_CFG_ADVERTISED_LISTENERS=LISTENER_INTERNAL://kafka-1:9092,LISTENER_EXTERNAL://192.168.1.4:9181
       - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_LOG_DIR="/tmp/kraft-combined-logs"
+      - JMX_PORT=9101
+      # Replace CLUSTER_ID with a unique base64 UUID using "bin/kafka-storage.sh random-uuid"
+      # See https://docs.confluent.io/kafka/operations-tools/kafka-tools.html#kafka-storage-sh
       - KAFKA_KRAFT_CLUSTER_ID=r4zt_wrqTRuT7W2NJsB_GA
+    networks:
+      - kafka      
     ports:
-      - 9192:9092
-      - 9182:9094
+      - "9191:9092"
+      - "9181:9094"
+      - "9171:9101"
 
   kafka-2:
     image: 'bitnami/kafka:latest'
+    hostname: kafka-2
     container_name: kafka-2
     environment:
       - KAFKA_ENABLE_KRAFT=yes
@@ -36,15 +46,23 @@ services:
       - KAFKA_CFG_BROKER_ID=2
       - KAFKA_CFG_NODE_ID=2
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=LISTENER_INTERNAL://kafka-2:9092,LISTENER_EXTERNAL://192.168.1.4:9183
+      - KAFKA_CFG_ADVERTISED_LISTENERS=LISTENER_INTERNAL://kafka-2:9092,LISTENER_EXTERNAL://192.168.1.4:9281
       - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_LOG_DIR="/tmp/kraft-combined-logs"
+      - JMX_PORT=9101
+      # Replace CLUSTER_ID with a unique base64 UUID using "bin/kafka-storage.sh random-uuid"
+      # See https://docs.confluent.io/kafka/operations-tools/kafka-tools.html#kafka-storage-sh
       - KAFKA_KRAFT_CLUSTER_ID=r4zt_wrqTRuT7W2NJsB_GA
+    networks:
+      - kafka            
     ports:
-      - 9193:9092
-      - 9183:9094
-      
+      - "9291:9092"
+      - "9281:9094"
+      - "9271:9101"
+
   kafka-3:
     image: 'bitnami/kafka:latest'
+    hostname: kafka-3
     container_name: kafka-3
     environment:
       - KAFKA_ENABLE_KRAFT=yes
@@ -57,18 +75,20 @@ services:
       - KAFKA_CFG_BROKER_ID=3
       - KAFKA_CFG_NODE_ID=3
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=LISTENER_INTERNAL://kafka-3:9092,LISTENER_EXTERNAL://192.168.1.4:9184
+      - KAFKA_CFG_ADVERTISED_LISTENERS=LISTENER_INTERNAL://kafka-3:9092,LISTENER_EXTERNAL://192.168.1.4:9381
       - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_LOG_DIR="/tmp/kraft-combined-logs"
+      - JMX_PORT=9101
+      # Replace CLUSTER_ID with a unique base64 UUID using "bin/kafka-storage.sh random-uuid"
+      # See https://docs.confluent.io/kafka/operations-tools/kafka-tools.html#kafka-storage-sh
       - KAFKA_KRAFT_CLUSTER_ID=r4zt_wrqTRuT7W2NJsB_GA
+    networks:
+      - kafka            
     ports:
-      - 9194:9092
-      - 9184:9094
+      - "9391:9092"
+      - "9381:9094"
+      - "9371:9101"
 
-  kafka-ui:
-    container_name: kafka-ui
-    image: 'provectuslabs/kafka-ui:latest'
-    ports:
-      - "8080:8080"
-    environment:
-      - KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS=kafka-1:9092,kafka-2:9092,kafka-3:9092
-      - KAFKA_CLUSTERS_0_NAME=r4zt_wrqTRuT7W2NJsB_GA
+networks:
+  kafka:
+    external: true

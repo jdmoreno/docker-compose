@@ -1,0 +1,33 @@
+---
+version: "3"
+services:
+  kafka-exporter:
+    image: bitnami/kafka-exporter:latest
+    hostname: kafka-exporter
+    container_name: kafka-exporter    
+    command:
+      - "--kafka.server=kafka-cp-1:9092"
+#      - "--kafka.server=broker-2:9092"
+#      - "--kafka.server=broker-3:9092"
+    networks:
+      - kafka
+    ports:
+      - "9308:9308"
+  
+#  jmx-exporter-kafka-cp-1:
+#    image: bitnami/jmx-exporter:latest
+#    hostname: jmx-exporter-kafka-cp-1
+#    container_name: jmx-exporter-kafka-cp-1
+#    networks:
+#      - kafka
+#    ports:
+#      - "9999:5556"
+#    command:
+#      - "5556"
+#      - exporter.yml
+#    volumes:
+#      - ./exporter/exporter-brokers.yaml:/opt/bitnami/jmx-exporter/exporter.yml
+ 
+networks:
+  kafka:
+    external: true
